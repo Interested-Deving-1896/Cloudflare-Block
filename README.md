@@ -1,48 +1,105 @@
-# Cloudflare-Block
+# Description
 
-This script enable *I'm Under Attack Mode* of [Cloudflare](https://www.cloudflare.com/) if your server's load average exceeds a predefined limit.
+This script automatically enables Cloudflare **I'm Under Attack Mode** when the server load average becomes too high, and disables it once the load returns to normal.
 
-**Cloudflare.sh** will create a file named **attacked** to check if the protection is *enabled* or *disabled*.
+It is designed to help mitigate traffic spikes, abusive requests, or potential DDoS situations by temporarily increasing Cloudflare protection automatically.
 
-Load average is checked via a cron job (default: every 20 minutes)
+# Configuration
 
-## Configuration
+## Download the Repository
 
-### Script
-
-```bash
-git clone https://github.com/Machou/Cloudflare-Block.git DDoS
-```
-
-### Configure you API
-
-Copy config file `config.template` to `config` and edit it:
-add API keys (mandatory) and optionally change some of the other values.
-
-**API_KEY**: Your Global API Key (https://dash.cloudflare.com/profile)
-
-**MAIL_ACCOUNT**: Email of your Cloudflare account
-
-**DOMAIN**: Zone ID (https://dash.cloudflare.com/_zone-id_/domain.com)
-
-[Cloudflare API Documentation](https://api.cloudflare.com/#zone-settings-get-security-level-setting)
-
-| Mode         | Description   |
-|:------------:|:-------------:|
-| high         | Threat scores greater than 0 will be challenged   |
-| medium       | Threat scores greater than 14 will be challenged  |
-| low          | Threat scores greater than 24 will be challenged  |
-|under_attack  | Under Attack Mode                                 |
-
-### Cron
+Clone the repository:
 
 ```bash
-crontab -e
-
-*/1 * * * * /root/DDoS/Cloudflare.sh 0 # check every 1 minute if protection is not enabled
-*/20 * * * * /root/DDoS/Cloudflare.sh 1 # check every 20 minutes if protection is enabled
+git clone https://github.com/your-repository/cloudflare-under-attack.git
 ```
 
-### License
+Enter the project directory:
+
+```bash
+cd cloudflare-under-attack
+```
+
+Make the script executable:
+
+```bash
+chmod +x cloudflare-under-attack.sh
+```
+
+---
+
+## Configure Your API
+
+Create a Cloudflare API Token from your Cloudflare dashboard:
+
+1. [My Profile](https://dash.cloudflare.com/profile/settings)
+2. [API Tokens](https://dash.cloudflare.com/profile/api-tokens)
+3. Create Token
+
+Recommended permissions:
+
+```text
+Zone.Zone:Read
+Zone.Settings:Edit
+```
+
+You will also need your:
+
+* Zone ID
+* API Token
+
+---
+
+## Create / Edit `.env`
+
+Create the environment file:
+
+```bash
+sudo nano /etc/cloudflare-under-attack.env
+```
+
+Example configuration:
+
+```bash
+API_TOKEN="your_cloudflare_api_token"
+ZONE_ID="your_zone_id"
+```
+
+Secure the file:
+
+```bash
+sudo chmod 600 /etc/cloudflare-under-attack.env
+sudo chown root:root /etc/cloudflare-under-attack.env
+```
+
+---
+
+## Cron
+
+Edit the crontab:
+
+```bash
+sudo crontab -e
+```
+
+Run the script every minute:
+
+```cron
+* * * * * /opt/scripts/cloudflare-under-attack.sh >/dev/null 2>&1
+```
+
+---
+
+# Logs
+
+View logs with:
+
+```bash
+journalctl -t cloudflare-under-attack
+```
+
+---
+
+# License
 
 **Cloudflare-Block** are distributed under the [The MIT License](https://opensource.org/licenses/MIT).
